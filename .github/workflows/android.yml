@@ -1,0 +1,41 @@
+name: Android Build Qt5
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+
+    - name: Configurar Java JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    - name: Instalar Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Instalar Qt 5 para Android
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        target: 'android'
+        arch: 'android_arm64_v8a'
+
+    - name: Ejecutar qmake y compilar
+      run: |
+        qmake Taximetro.pro -spec android-clang
+        make apk
+
+    - name: Guardar el APK final
+      uses: actions/upload-artifact@v4
+      with:
+        name: TaximetroPapa-APK
+        path: android-build/**/*.apk
